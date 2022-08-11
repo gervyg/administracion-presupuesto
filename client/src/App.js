@@ -1,11 +1,11 @@
 import './App.css';
+import Router from './Router'
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>Administración de Presupuesto Personal</p>
-      </header>
+    <div className="App">      
+      <Router />
     </div>
   );
 }
