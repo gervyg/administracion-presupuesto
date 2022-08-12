@@ -43,4 +43,17 @@ const getBudgets = async (limit) => {
     }
 };
 
-module.exports = { getCategories, getBudgets }
+const addBudget = async (budget) => {
+
+    const insert = `INSERT INTO presupuesto (concepto, monto, fecha, tipo, id_categoria, balance_actual)
+                    VALUES ('${budget.concept}', '${budget.amount}' , 'NOW()', '${budget.type}', '${budget.category}', 0 );`;
+    try {
+        await pool.query(insert);
+        return true;
+    } catch (err) {
+        console.log('Error addBudget: ', err);
+        return false;
+    }
+};
+
+module.exports = { getCategories, getBudgets, addBudget }

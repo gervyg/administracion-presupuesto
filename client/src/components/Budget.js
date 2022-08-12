@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import axios from 'axios';
+import ModalBudget from './ModalBudget';
 
 class Budget extends Component {
     state = {
@@ -34,13 +35,15 @@ class Budget extends Component {
             })
             console.log(res);
         })
-    }
+    } 
 
     render(){
+            
             return (
                 <React.Fragment>
                     <div className='row float-start m-3'>
-                        <button type="button" className="btn btn-success">Crear</button>
+                        {/*Modal create/edit budget */}
+                        <ModalBudget/>
                     </div>
                     <div className='row float-end'>                    
                         <form className="row gy-2 gx-3 mx-5">
@@ -89,6 +92,7 @@ class Budget extends Component {
                                         <th>Monto</th>
                                         <th>Fecha</th>
                                         <th>Tipo</th> 
+                                        <th>Categoría</th>
                                         <th>Editar</th>
                                         <th>Eliminar</th>
                                     </tr>    
@@ -104,7 +108,12 @@ class Budget extends Component {
                                                 <td>{b.concepto}</td>
                                                 <td>{b.monto}</td>
                                                 <td>{b.fecha}</td>
-                                                <td>{b.tipo}</td>
+                                                <td>{(b.tipo === '1')? 'Ingresos':'Egresos'}</td>
+                                                <td>{this.state.categories.filter(category => b.id_categoria === category.id).map((category, i)=> {
+                                                    return(
+                                                        <span key={i}>{category.descripcion}</span>
+                                                    )
+                                                })}</td>
                                                 <td></td>
                                                 <td></td>
                                             </tr>
@@ -121,6 +130,7 @@ class Budget extends Component {
                             </table>
                         </div>   
                     </section>  
+                    
                 </React.Fragment>
                 
             )

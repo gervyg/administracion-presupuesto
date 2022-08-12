@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const bodyParser = require("body-parser")
 const path = require("path");
@@ -6,22 +7,29 @@ const db = require('./db')
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 app.use(express.static(path.resolve(__dirname,'./client/build')));
 
-/* APIS */
+/* APIs */
 app.get('/categories', async (req, res) => {   
     
     const results = await db.getCategories()
-    res.set('Access-Control-Allow-Origin', '*')
     res.json(results);   
 })
 
 app.get('/budgets', async (req, res) => {   
     const { limit } = req.query;
     const results = await db.getBudgets(limit);
-    res.set('Access-Control-Allow-Origin', '*')
     res.json(results);   
+})
+
+app.post('/budget', async (req, res) => {    
+    
+    const { budget } = req.body;  
+    const result = await db.addBudget(budget);
+    res.json(result);    
+
 })
 /***/
 
