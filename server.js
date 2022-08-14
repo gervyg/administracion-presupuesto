@@ -19,8 +19,14 @@ app.get('/categories', async (req, res) => {
 })
 
 app.get('/budgets', async (req, res) => {   
-    const { limit } = req.query;
-    const results = await db.getBudgets(limit);
+    const { limit, idUser } = req.query;
+    const results = await db.getBudgets(limit, idUser);
+    res.json(results);   
+})
+
+app.get('/budgetsFilter', async (req, res) => {   
+    const { type, category, idUser } = req.query;
+    const results = await db.getBudgetsByFilter(type, category, idUser);
     res.json(results);   
 })
 
@@ -29,6 +35,22 @@ app.post('/budget', async (req, res) => {
     const { budget } = req.body;  
     const result = await db.addBudget(budget);
     res.json(result);    
+
+})
+
+app.put('/budget/:id', async (req, res) => {    
+    const { id } = req.params;
+    const { budget } = req.body;   
+    const result = await db.editBudget(id, budget);
+    res.json(result);   
+
+})
+
+app.delete('/budget/:id', async (req, res) => {  
+    const { id } = req.params;
+    const { idUser } = req.query;   
+    const result = await db.deleteBudget(id, idUser);
+    res.json(result);   
 
 })
 /***/

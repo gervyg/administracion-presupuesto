@@ -1,11 +1,19 @@
 import React, {Component} from 'react';
 import axios from 'axios';
-import ModalBudget from './ModalBudget';
+import { Modal } from "react-bootstrap";
+import FormBudget from './FormBudget'
 
 class Budget extends Component {
     state = {
+        idUser: 1,
         budgets: [],
-        categories: []
+        categories: [],
+        showModal: false,
+        showModalDelete: false,
+        idBudget: 0,
+        budgetEdit: {},
+        type: "",
+        category: ""
     }
 
     componentDidMount(){
@@ -13,17 +21,45 @@ class Budget extends Component {
         this.getCategories();
     }
 
+    handleClose = () => { this.setState({ showModal: false }) }
+    handleCloseDelete = () => { this.setState({ showModalDelete: false }) }
+
     getBudgets = () => {
         axios.get("http://localhost:5000/budgets",  {
             params: {
-              limit: false
+              limit: false,
+              idUser: this.state.idUser
             } 
         })
         .then( res => {
             this.setState({
                 budgets: res.data
             })
-            console.log(res);
+        })
+    }
+
+    typeFilterRef = React.createRef();
+    categoryFilterRef = React.createRef();
+
+    changeFilterState = () => {
+        this.setState({
+            type: this.typeFilterRef.current.value,
+            category: this.categoryFilterRef.current.value
+        })
+    }
+
+    getBudgetsFilters = () => {
+        axios.get("http://localhost:5000/budgetsFilter",  {
+            params: {
+              type: this.state.type,
+              category: this.state.category,
+              idUser: this.state.idUser
+            } 
+        })
+        .then( res => {
+            this.setState({
+                budgets: res.data
+            })
         })
     }
 
@@ -33,17 +69,34 @@ class Budget extends Component {
             this.setState({
                 categories: res.data
             })
-            console.log(res);
         })
     } 
+
+    deleteBudget = (e) => {
+        e.preventDefault();
+        axios.delete("http://localhost:5000/budget/"+this.state.idBudget, 
+                {params: {
+                    idUser: this.state.idUser
+                    }
+                }
+            ).then( res => {              
+                console.log(res);
+                if(res.data){
+                    window.location.reload();
+                }else{
+                    this.setState({
+                        resultFail: true
+                    })
+                }
+            })
+    }
 
     render(){
             
             return (
                 <React.Fragment>
                     <div className='row float-start m-3'>
-                        {/*Modal create/edit budget */}
-                        <ModalBudget/>
+                        <button type="button" onClick={() => this.setState({showModal: true, idBudget:0, budgetEdit:{}})} className="btn btn-success">Crear</button>
                     </div>
                     <div className='row float-end'>                    
                         <form className="row gy-2 gx-3 mx-5">
@@ -51,7 +104,7 @@ class Budget extends Component {
                             <div className="mb-3 row">
                                 <label for="selectTipo" className="col-auto col-form-label">Tipo: </label>
                                 <div className="col-auto">
-                                    <select id="selectTipo" className='form-select form-select-sm'>
+                                    <select id="selectTipo" className='form-select form-select-sm' ref={this.typeFilterRef}  onChange={this.changeFilterState}>
                                         <option value=''>Todos</option>
                                         <option value='1'>Ingresos</option>
                                         <option value='0'>Egresos</option>
@@ -63,7 +116,7 @@ class Budget extends Component {
                             <div className='mb-3 row'>
                                 <label className='col-auto col-form-label'>Categoría: </label>
                                 <div className="col-auto">
-                                <select id="selectCategoria" className='form-select form-select-sm'>
+                                <select id="selectCategoria" className='form-select form-select-sm' ref={this.categoryFilterRef}  onChange={this.changeFilterState}>
                                         <option value=''>Todas</option>
                                         {this.state.categories.map((category, i)=> {
                                             return(
@@ -76,7 +129,7 @@ class Budget extends Component {
                         </div>
                         <div className="col-auto">
                             <div className='mb-3 row'>
-                            <button type="button" className="btn btn-primary">Buscar</button>
+                            <button type="button" onClick={this.getBudgetsFilters} className="btn btn-primary">Buscar</button>
                             </div>
                         </div>
                     </form>   
@@ -106,7 +159,7 @@ class Budget extends Component {
                                             <tr key={i}>
                                                 <td>{i+1}</td>
                                                 <td>{b.concepto}</td>
-                                                <td>{b.monto}</td>
+                                                <td>{b.monto+'$'}</td>
                                                 <td>{b.fecha}</td>
                                                 <td>{(b.tipo === '1')? 'Ingresos':'Egresos'}</td>
                                                 <td>{this.state.categories.filter(category => b.id_categoria === category.id).map((category, i)=> {
@@ -114,15 +167,19 @@ class Budget extends Component {
                                                         <span key={i}>{category.descripcion}</span>
                                                     )
                                                 })}</td>
-                                                <td></td>
-                                                <td></td>
+                                                <td>
+                                                    <i onClick={() => this.setState({showModal: true, idBudget:b.id, budgetEdit:b})} className="bi bi-pencil-fill" type="button"></i>
+                                                </td>
+                                                <td>
+                                                    <i onClick={() => this.setState({showModalDelete: true, idBudget:b.id})} className="bi bi-trash" type="button"></i>
+                                                </td>
                                             </tr>
                                         )
                                     })  
                                 } 
                                 {(this.state.budgets.length === 0) && 
                                 <tr key={1}>
-                                    <td colSpan="7">No hay registros</td>
+                                    <td colSpan="8">No hay registros</td>
                                 </tr>               
                                 }
                                 </tbody>
@@ -130,7 +187,34 @@ class Budget extends Component {
                             </table>
                         </div>   
                     </section>  
-                    
+                    <Modal show={this.state.showModal} onHide={this.handleClose}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>{((this.state.idBudget === 0)? 'Crear': 'Editar')+ ' Presupuesto'}</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <FormBudget categories={this.state.categories} idBudget={this.state.idBudget} budgetEdit={this.state.budgetEdit}/>
+                        </Modal.Body>
+                    </Modal>
+                    <Modal show={this.state.showModalDelete} onHide={this.handleCloseDelete}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Eliminar Presupuesto</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <div className='row'>
+                            <p>¿Seguro desea eliminar este presupuesto?</p>
+                            {
+                                this.state.resultFail ?
+                                <div className="mb-3" >
+                                    <div class="alert alert-danger" role="alert">
+                                        Disculpe hubo un error.
+                                    </div>
+                                </div>
+                                : null
+                            }
+                            <button type="button" onClick={this.deleteBudget} className="btn btn-primary">Guardar</button>
+                            </div>                            
+                        </Modal.Body>
+                    </Modal>
                 </React.Fragment>
                 
             )

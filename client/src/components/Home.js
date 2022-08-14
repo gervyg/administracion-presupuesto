@@ -3,6 +3,7 @@ import axios from 'axios';
 
 class Home extends Component {
     state = {
+        idUser: 1,
         budgets: []
     }
 
@@ -13,7 +14,8 @@ class Home extends Component {
     getBudgets = () => {
         axios.get("http://localhost:5000/budgets",  {
             params: {
-              limit: true
+              limit: true,
+              idUser: this.state.idUser
             } 
         })
         .then( res => {
@@ -28,7 +30,7 @@ class Home extends Component {
         return(
             <React.Fragment>
                 <div className="row mt-5 mx-3 float-start">
-                    <h2>Balance actual: </h2>
+                    <h2>Balance actual: {(this.state.budgets.length > 0)?' 0$':' Cargando ...'}</h2>
                 </div>
                 <div className="clearfix"></div>
                 <div className="row mt-3 mx-3">
@@ -52,9 +54,9 @@ class Home extends Component {
                                     <tr key={i}>
                                         <td>{i+1}</td>
                                         <td>{b.concepto}</td>
-                                        <td>{b.monto}</td>
+                                        <td>{b.monto+'$'}</td>
                                         <td>{b.fecha}</td>
-                                        <td>{b.tipo}</td>
+                                        <td>{(b.tipo === '1')? 'Ingresos':'Egresos'}</td>
                                     </tr>
                                 )
                             })  
