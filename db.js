@@ -5,7 +5,7 @@ const config = {
     user: "postgres",
     host: "localhost",
     password: "0718",
-    database: "admin_presupuesto",
+    database: "admin_budget",
     port: 5432,
     max: 20,
    
@@ -14,41 +14,41 @@ const config = {
 const pool = new Pool(config);
 
 //Search all categories
-const getCategories = async () => {
+const findCategories = async () => {
 
-    const query = `(SELECT * FROM categoria );`;
+    const query = `(SELECT * FROM category );`;
 
     try {
         const result = await pool.query(query);
         return result.rows;
     } catch (err) {
-        console.log('Error in getCategories', err);
+        console.log('Error in findCategories', err);
         return err;
     }
 };
 
 
 //Search all budgets (with conditional limit)
-const getBudgets = async (limit, idUser) => {
+const findBudgets = async (limit, idUser) => {
 
     const limitQuery = (limit)? "LIMIT 10": "";
-    const query = `(SELECT * FROM presupuesto WHERE id_usuario = '${idUser}'
+    const query = `(SELECT * FROM budget WHERE id_user = '${idUser}'
                     ORDER BY id desc ${limitQuery} );`;
 
     try {
         const result = await pool.query(query);
         return result.rows;
     } catch (err) {
-        console.log('Error in getBudgets', err);
+        console.log('Error in findBudgets', err);
         return err;
     }
 };
 
-const getBudgetsByFilter = async (type, category, idUser) => {
+const findBudgetsByFilter = async (type, category, idUser) => {
 
-    const typeParams = (type != "")? " AND tipo='"+type+"'": "";
-    const categoryParams = (category != "")? " AND id_categoria='"+category+"'": "";
-    const query = `(SELECT * FROM presupuesto WHERE id_usuario = ${idUser} 
+    const typeParams = (type != "")? " AND type='"+type+"'": "";
+    const categoryParams = (category != "")? " AND id_category='"+category+"'": "";
+    const query = `(SELECT * FROM budget WHERE id_user = ${idUser} 
                     ${typeParams} ${categoryParams}
                      ORDER BY id desc);`;
 
@@ -56,7 +56,7 @@ const getBudgetsByFilter = async (type, category, idUser) => {
         const result = await pool.query(query);
         return result.rows;
     } catch (err) {
-        console.log('Error in getBudgetsByFilter', err);
+        console.log('Error in findBudgetsByFilter', err);
         return err;
     }
 };
@@ -65,17 +65,17 @@ const addBudget = async (budget) => {
 
     const amount = (budget.type === '0')? -(budget.amount): budget.amount;
 
-    const insert = `INSERT INTO presupuesto (concepto, monto, fecha, fecha_actualizacion, tipo, id_categoria, id_usuario)
+    const insert = `INSERT INTO budget (concept, amount, date, date_update, type, id_category, id_user)
                     VALUES ('${budget.concept}', '${amount}' , 'NOW()', 'NOW()',
                     ${budget.type}, '${budget.category}', '${budget.idUser}' ) RETURNING id;`;
     try {
         await pool.query(insert);
         try {
 
-            const result = await pool.query(`SELECT id FROM usuario_balance WHERE id_usuario=${budget.idUser};`);
+            const result = await pool.query(`SELECT id FROM user_balance WHERE id_user=${budget.idUser};`);
             
             if(result.rows.length === 0){
-                const queryBalance = `INSERT INTO usuario_balance (id_usuario, balance_actual, total_ingresos, total_egresos)
+                const queryBalance = `INSERT INTO user_balance (id_user, balance, total_revenue, total_expenditure)
                     VALUES ('${budget.idUser}','${amount}','${amount}','${amount}');`;
                  await pool.query(queryBalance);
             }else{
@@ -99,8 +99,8 @@ const editBudget = async (id, budget) => {
 
     const amount = (budget.type === '0')? -(budget.amount): budget.amount;
 
-    const update = `UPDATE presupuesto SET concepto='${budget.concept}', monto='${amount}', 
-                    fecha_actualizacion='NOW()', id_categoria='${budget.category}' 
+    const update = `UPDATE budget SET concept='${budget.concept}', amount='${amount}', 
+                    date_update='NOW()', id_category='${budget.category}' 
                     WHERE id=${id};`;
     try {
         await pool.query(update);
@@ -122,7 +122,7 @@ const editBudget = async (id, budget) => {
 
 const deleteBudget = async (id, idUser) => {
     
-    const deleteQuery = `DELETE FROM presupuesto WHERE id='${id}';`;
+    const deleteQuery = `DELETE FROM budget WHERE id='${id}';`;
     try {
         await pool.query(deleteQuery);
         try {
@@ -141,20 +141,20 @@ const deleteBudget = async (id, idUser) => {
 };
 
 const queryBalanceString = (idUser) => {
-   return `UPDATE usuario_balance SET balance_actual=(
-                SELECT COALESCE(SUM(monto),0) FROM presupuesto WHERE id_usuario='${idUser}'
+   return `UPDATE user_balance SET balance=(
+                SELECT COALESCE(SUM(amount),0) FROM budget WHERE id_user='${idUser}'
             ),
-            total_ingresos=(
-                SELECT COALESCE(SUM(monto),0) FROM presupuesto WHERE tipo = 1 AND id_usuario='${idUser}'
+            total_revenue=(
+                SELECT COALESCE(SUM(amount),0) FROM budget WHERE type = 1 AND id_user='${idUser}'
             ),
-            total_egresos=(
-                SELECT COALESCE(SUM(monto),0) FROM presupuesto WHERE tipo = 0 AND id_usuario='${idUser}'
-            ) WHERE id_usuario=${idUser};`;
+            total_expenditure=(
+                SELECT COALESCE(SUM(amount),0) FROM budget WHERE type = 0 AND id_user='${idUser}'
+            ) WHERE id_user=${idUser};`;
 }
 
 const login = async (email, password) => {
 
-    const query = `(SELECT id, nombre FROM usuario WHERE email='${email}' and password='${password}');`;
+    const query = `(SELECT id, name FROM users WHERE email='${email}' and password='${password}');`;
     try {
         const result = await pool.query(query);
         return result.rows;
@@ -164,16 +164,16 @@ const login = async (email, password) => {
     }
 };
 
-const getUserBalance = async (idUser) => {
+const findUserBalance = async (idUser) => {
 
-    const query = `(SELECT * FROM usuario_balance WHERE id_usuario='${idUser}');`;
+    const query = `(SELECT * FROM user_balance WHERE id_user='${idUser}');`;
     try {
         const result = await pool.query(query);
         return result.rows[0];
     } catch (err) {
-        console.log('Error in getUserBalance', err);
+        console.log('Error in findUserBalance', err);
         return err;
     }
 };
 
-module.exports = { getCategories, getBudgets, addBudget, editBudget, deleteBudget, getBudgetsByFilter, login, getUserBalance }
+module.exports = { findCategories, findBudgets, addBudget, editBudget, deleteBudget, findBudgetsByFilter, login, findUserBalance }

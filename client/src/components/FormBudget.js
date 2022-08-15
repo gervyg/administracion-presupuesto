@@ -77,10 +77,10 @@ class FormBudget extends Component {
         if(this.props.idBudget !== 0 && this.props.idBudget != null){
             this.setState({
                 budget: {
-                    concept: this.props.budgetEdit.concepto,
-                    amount: (this.props.budgetEdit.tipo === '0')? -this.props.budgetEdit.monto : this.props.budgetEdit.monto,
-                    type: this.props.budgetEdit.tipo,
-                    category: this.props.budgetEdit.id_categoria,
+                    concept: this.props.budgetEdit.concept,
+                    amount: (this.props.budgetEdit.type === '0')? -this.props.budgetEdit.amount : this.props.budgetEdit.amount,
+                    type: this.props.budgetEdit.type,
+                    category: this.props.budgetEdit.id_category,
                     idUser: this.props.budgetEdit.id_user
                 }
             })
@@ -117,7 +117,7 @@ class FormBudget extends Component {
                 <select id="category" className='form-select form-select-sm' value={this.state.budget.category} defaultValue={this.state.budget.category} ref={this.categoryRef}  onChange={this.changeState}>
                     {this.state.categories.map((category, i)=> {
                         return(
-                            <option key={i} value={category.id}>{category.descripcion}</option>
+                            <option key={i} value={category.id}>{category.description}</option>
                         )
                     })}
                 </select> 

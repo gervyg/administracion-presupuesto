@@ -138,7 +138,7 @@ class Budget extends Component {
                                         <option value=''>Todas</option>
                                         {this.state.categories.map((category, i)=> {
                                             return(
-                                                <option key={i} value={category.id}>{category.descripcion}</option>
+                                                <option key={i} value={category.id}>{category.description}</option>
                                             )
                                         })}
                                     </select> 
@@ -176,13 +176,13 @@ class Budget extends Component {
                                         return(
                                             <tr key={i}>
                                                 <td>{i+1}</td>
-                                                <td>{b.concepto}</td>
-                                                <td>{b.monto+'$'}</td>
-                                                <td>{new Date(b.fecha).toLocaleString()}</td>
-                                                <td>{(b.tipo === '1')? 'Ingresos':'Egresos'}</td>
-                                                <td>{this.state.categories.filter(category => b.id_categoria === category.id).map((category, i)=> {
+                                                <td>{b.concept}</td>
+                                                <td>{b.amount+'$'}</td>
+                                                <td>{new Date(b.date).toLocaleString()}</td>
+                                                <td>{(b.type === '1')? 'Ingresos':'Egresos'}</td>
+                                                <td>{this.state.categories.filter(category => b.id_category === category.id).map((category, i)=> {
                                                     return(
-                                                        <span key={i}>{category.descripcion}</span>
+                                                        <span key={i}>{category.description}</span>
                                                     )
                                                 })}</td>
                                                 <td>

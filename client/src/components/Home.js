@@ -6,7 +6,7 @@ class Home extends Component {
         idUser: 0,
         budgets: [],
         validateLogin: false,
-        balance: { balance: 0 }
+        balance: { balance: 0,  revenue: 0, expenditure: 0 }
     }
 
     loginValidate = () =>{
@@ -36,13 +36,16 @@ class Home extends Component {
             } 
         })
         .then( res => {
-            this.setState({
+            if(typeof res.data.balance !== 'undefined'){
+              this.setState({
                 balance: {
-                    balance: res.data.balance_actual,
-                    income: res.data.total_ingresos,
-                    outflow: res.data.total_egresos
+                    balance: res.data.balance,
+                    revenue: res.data.total_revenue,
+                    expenditure: res.data.total_expenditure
                 }
-            })
+              })  
+            }
+            
         })
     }
 
@@ -66,10 +69,10 @@ class Home extends Component {
         return(
             <React.Fragment>
                 <div className="row mt-5 mx-3 float-start">
-                    <h2 className='col text-start'>Balance actual: {(this.state.budgets.length > 0)? this.state.balance.balance+' $':' Cargando ...'}</h2>
+                    <h2 className='col text-start'>Balance actual: {(this.state.budgets.length >= 0)? this.state.balance.balance+' $':' Cargando ...'}</h2>
                     <div className='row'>
-                        <h5 className='col text-start'>Total Ingresos: {(this.state.budgets.length > 0)? this.state.balance.income+' $':' Cargando ...'}</h5>
-                        <h5 className='col text-start'>Total Egresos: {(this.state.budgets.length > 0)? this.state.balance.outflow+' $':' Cargando ...'}</h5>
+                        <h5 className='col text-start'>Total Ingresos: {this.state.balance.revenue+' $'}</h5>
+                        <h5 className='col text-start'>Total Egresos: {this.state.balance.expenditure+' $'}</h5>
                     </div>
                 </div>
                 <div className="clearfix"></div>
@@ -92,10 +95,10 @@ class Home extends Component {
                                 return(
                                     <tr key={i}>
                                         <td>{i+1}</td>
-                                        <td>{b.concepto}</td>
-                                        <td>{b.monto+'$'}</td>
-                                        <td>{new Date(b.fecha).toLocaleString()}</td>
-                                        <td>{(b.tipo === '1')? 'Ingresos':'Egresos'}</td>
+                                        <td>{b.concept}</td>
+                                        <td>{b.amount+'$'}</td>
+                                        <td>{new Date(b.date).toLocaleString()}</td>
+                                        <td>{(b.type === '1')? 'Ingresos':'Egresos'}</td>
                                     </tr>
                                 )
                             })  

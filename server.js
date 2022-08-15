@@ -42,19 +42,19 @@ const checkLogin = (req, res, next) => {
 
 app.get('/categories', async (req, res) => {   
     
-    const results = await db.getCategories()
+    const results = await db.findCategories()
     res.json(results);   
 })
 
 app.get('/budgets', checkLogin, async (req, res) => {   
     const { limit, idUser } = req.query;
-    const results = await db.getBudgets(limit, idUser);
+    const results = await db.findBudgets(limit, idUser);
     res.json(results);   
 })
 
 app.get('/budgetsFilter', checkLogin, async (req, res) => {   
     const { type, category, idUser } = req.query;
-    const results = await db.getBudgetsByFilter(type, category, idUser);
+    const results = await db.findBudgetsByFilter(type, category, idUser);
     res.json(results);   
 })
 
@@ -82,7 +82,7 @@ app.delete('/budget/:id', checkLogin, async (req, res) => {
 
 app.get('/userBalance', checkLogin, async (req, res) => {
     const { idUser } = req.query;  
-    const result = await db.getUserBalance(idUser)
+    const result = await db.findUserBalance(idUser)
     res.json(result);   
 });
 /***/

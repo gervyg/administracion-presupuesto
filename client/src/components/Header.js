@@ -20,7 +20,7 @@ class Header extends Component {
             if(window.location.pathname !== "/" && window.location.pathname !== "/register"){
                 this.setState({
                     validateLogin: true,
-                    userName: tk.data.nombre
+                    userName: tk.data.name
                 }) 
             }                         
          }       
