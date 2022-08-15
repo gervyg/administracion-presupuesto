@@ -22,7 +22,7 @@ const getCategories = async () => {
         const result = await pool.query(query);
         return result.rows;
     } catch (err) {
-        console.log('Error in getCategories');
+        console.log('Error in getCategories', err);
         return err;
     }
 };
@@ -32,14 +32,14 @@ const getCategories = async () => {
 const getBudgets = async (limit, idUser) => {
 
     const limitQuery = (limit)? "LIMIT 10": "";
-    const query = `(SELECT * FROM presupuesto WHERE id_usuario = ${idUser} 
+    const query = `(SELECT * FROM presupuesto WHERE id_usuario = '${idUser}'
                     ORDER BY id desc ${limitQuery} );`;
 
     try {
         const result = await pool.query(query);
         return result.rows;
     } catch (err) {
-        console.log('Error in getBudgets');
+        console.log('Error in getBudgets', err);
         return err;
     }
 };
@@ -152,4 +152,28 @@ const queryBalanceString = (idUser) => {
             ) WHERE id_usuario=${idUser};`;
 }
 
-module.exports = { getCategories, getBudgets, addBudget, editBudget, deleteBudget, getBudgetsByFilter }
+const login = async (email, password) => {
+
+    const query = `(SELECT id, nombre FROM usuario WHERE email='${email}' and password='${password}');`;
+    try {
+        const result = await pool.query(query);
+        return result.rows;
+    } catch (err) {
+        console.log('Error in login', err);
+        return err;
+    }
+};
+
+const getUserBalance = async (idUser) => {
+
+    const query = `(SELECT * FROM usuario_balance WHERE id_usuario='${idUser}');`;
+    try {
+        const result = await pool.query(query);
+        return result.rows[0];
+    } catch (err) {
+        console.log('Error in getUserBalance', err);
+        return err;
+    }
+};
+
+module.exports = { getCategories, getBudgets, addBudget, editBudget, deleteBudget, getBudgetsByFilter, login, getUserBalance }

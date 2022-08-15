@@ -5,7 +5,7 @@ import FormBudget from './FormBudget'
 
 class Budget extends Component {
     state = {
-        idUser: 1,
+        idUser: 0,
         budgets: [],
         categories: [],
         showModal: false,
@@ -16,9 +16,25 @@ class Budget extends Component {
         category: ""
     }
 
+    loginValidate = () =>{
+
+        if(localStorage.getItem('validateLogin') && localStorage.getItem('token') !== ""){
+            const token = JSON.parse(localStorage.getItem('token'));
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace("-", "+").replace("_", "/");
+            const tk = JSON.parse(window.atob(base64));
+            
+            this.setState({ idUser: tk.data.id }, () => {
+                this.getBudgets();
+                this.getCategories();
+            });         
+        }else{
+            window.location.href="/"
+        }       
+    }
+
     componentDidMount(){
-        this.getBudgets();
-        this.getCategories();
+        this.loginValidate();
     }
 
     handleClose = () => { this.setState({ showModal: false }) }
@@ -28,7 +44,8 @@ class Budget extends Component {
         axios.get("http://localhost:5000/budgets",  {
             params: {
               limit: false,
-              idUser: this.state.idUser
+              idUser: this.state.idUser,
+              token: JSON.parse(localStorage.getItem('token'))
             } 
         })
         .then( res => {
@@ -53,7 +70,8 @@ class Budget extends Component {
             params: {
               type: this.state.type,
               category: this.state.category,
-              idUser: this.state.idUser
+              idUser: this.state.idUser,
+              token: JSON.parse(localStorage.getItem('token'))
             } 
         })
         .then( res => {
@@ -76,11 +94,11 @@ class Budget extends Component {
         e.preventDefault();
         axios.delete("http://localhost:5000/budget/"+this.state.idBudget, 
                 {params: {
-                    idUser: this.state.idUser
-                    }
+                    idUser: this.state.idUser,
+                    token: JSON.parse(localStorage.getItem('token'))
+                }
                 }
             ).then( res => {              
-                console.log(res);
                 if(res.data){
                     window.location.reload();
                 }else{
@@ -160,7 +178,7 @@ class Budget extends Component {
                                                 <td>{i+1}</td>
                                                 <td>{b.concepto}</td>
                                                 <td>{b.monto+'$'}</td>
-                                                <td>{b.fecha}</td>
+                                                <td>{new Date(b.fecha).toLocaleString()}</td>
                                                 <td>{(b.tipo === '1')? 'Ingresos':'Egresos'}</td>
                                                 <td>{this.state.categories.filter(category => b.id_categoria === category.id).map((category, i)=> {
                                                     return(
@@ -192,7 +210,7 @@ class Budget extends Component {
                             <Modal.Title>{((this.state.idBudget === 0)? 'Crear': 'Editar')+ ' Presupuesto'}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <FormBudget categories={this.state.categories} idBudget={this.state.idBudget} budgetEdit={this.state.budgetEdit}/>
+                            <FormBudget categories={this.state.categories} idBudget={this.state.idBudget} budgetEdit={this.state.budgetEdit} idUser={this.state.idUser}/>
                         </Modal.Body>
                     </Modal>
                     <Modal show={this.state.showModalDelete} onHide={this.handleCloseDelete}>
@@ -211,7 +229,7 @@ class Budget extends Component {
                                 </div>
                                 : null
                             }
-                            <button type="button" onClick={this.deleteBudget} className="btn btn-primary">Guardar</button>
+                            <button type="button" onClick={this.deleteBudget} className="btn btn-danger">Eliminar</button>
                             </div>                            
                         </Modal.Body>
                     </Modal>

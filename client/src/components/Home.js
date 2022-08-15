@@ -3,26 +3,62 @@ import axios from 'axios';
 
 class Home extends Component {
     state = {
-        idUser: 1,
-        budgets: []
+        idUser: 0,
+        budgets: [],
+        validateLogin: false,
+        balance: { balance: 0 }
     }
 
-    componentWillMount(){
-        this.getBudgets();
+    loginValidate = () =>{
+
+        if(localStorage.getItem('validateLogin') && localStorage.getItem('token') !== ""){ 
+            const token = JSON.parse(localStorage.getItem('token'));
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace("-", "+").replace("_", "/");
+            const tk = JSON.parse(window.atob(base64));
+            
+            this.setState({ idUser: tk.data.id, validateLogin: true }, () => {
+                this.getBudgets();
+                this.getUserBalance();
+            });         
+        }       
+    }
+
+    componentDidMount(){
+        this.loginValidate();  
+    }
+
+    getUserBalance = () => {
+        axios.get("http://localhost:5000/userBalance",  {
+            params: {
+              idUser: this.state.idUser,
+              token: JSON.parse(localStorage.getItem('token'))
+            } 
+        })
+        .then( res => {
+            this.setState({
+                balance: {
+                    balance: res.data.balance_actual,
+                    income: res.data.total_ingresos,
+                    outflow: res.data.total_egresos
+                }
+            })
+        })
     }
 
     getBudgets = () => {
+        
         axios.get("http://localhost:5000/budgets",  {
             params: {
               limit: true,
-              idUser: this.state.idUser
+              idUser: this.state.idUser,
+              token: JSON.parse(localStorage.getItem('token'))
             } 
         })
         .then( res => {
             this.setState({
                 budgets: res.data
             })
-            console.log(res);
         })
     }
 
@@ -30,7 +66,11 @@ class Home extends Component {
         return(
             <React.Fragment>
                 <div className="row mt-5 mx-3 float-start">
-                    <h2>Balance actual: {(this.state.budgets.length > 0)?' 0$':' Cargando ...'}</h2>
+                    <h2 className='col text-start'>Balance actual: {(this.state.budgets.length > 0)? this.state.balance.balance+' $':' Cargando ...'}</h2>
+                    <div className='row'>
+                        <h5 className='col text-start'>Total Ingresos: {(this.state.budgets.length > 0)? this.state.balance.income+' $':' Cargando ...'}</h5>
+                        <h5 className='col text-start'>Total Egresos: {(this.state.budgets.length > 0)? this.state.balance.outflow+' $':' Cargando ...'}</h5>
+                    </div>
                 </div>
                 <div className="clearfix"></div>
                 <div className="row mt-3 mx-3">
@@ -46,8 +86,7 @@ class Home extends Component {
                             </tr>    
                         </thead> 
                         <tbody>            
-                        {
-                        (this.state.budgets.length > 0) &&
+                        {(this.state.budgets.length > 0) &&
                         
                             this.state.budgets.map((b, i)=> {
                                 return(
@@ -55,7 +94,7 @@ class Home extends Component {
                                         <td>{i+1}</td>
                                         <td>{b.concepto}</td>
                                         <td>{b.monto+'$'}</td>
-                                        <td>{b.fecha}</td>
+                                        <td>{new Date(b.fecha).toLocaleString()}</td>
                                         <td>{(b.tipo === '1')? 'Ingresos':'Egresos'}</td>
                                     </tr>
                                 )

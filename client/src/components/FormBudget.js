@@ -1,14 +1,17 @@
 import React, {Component} from 'react';
 import axios from 'axios';
+import SimpleReactValidator from 'simple-react-validator';
 
 class FormBudget extends Component {
 
     state = {
-        idUser: 1,
+        idUser: this.props.idUser,
         categories: this.props.categories,
         budget: {},
         resultFail: false
     }
+
+    validator = new SimpleReactValidator({ messages: { required: "Este campo es requerido"}});
 
     conceptRef = React.createRef();
     amountRef = React.createRef();
@@ -30,35 +33,43 @@ class FormBudget extends Component {
     saveBudget = (e) => {
         e.preventDefault();
         this.changeState();
-        this.setState({ resultFail: false })
-        if(this.props.idBudget === 0){
-            //Add Budget
-            axios.post("http://localhost:5000/budget", {budget: this.state.budget})
-            .then( res => {              
-                console.log(res);
-                if(res.data){
-                    window.location.reload();
-                }else{
-                    this.setState({
-                        resultFail: true
-                    })
-                }
-            })
+        this.setState({ resultFail: false }); 
+        
+        if(this.validator.allValid()){
+            if(this.props.idBudget === 0){ 
+                //Add Budget
+                axios.post("http://localhost:5000/budget", 
+                {   budget: this.state.budget },
+                {   params: { token: JSON.parse(localStorage.getItem('token')) }
+                }).then( res => {              
+                    if(res.data){
+                        window.location.reload();
+                    }else{
+                        this.setState({
+                            resultFail: true
+                        })
+                    }
+                })
+            }else{ 
+                //Edit Budget
+                axios.put("http://localhost:5000/budget/"+this.props.idBudget, 
+                        {   budget: this.state.budget },
+                        {   params: { token: JSON.parse(localStorage.getItem('token')) }
+                    }
+                ).then( res => {              
+                    if(res.data){
+                        window.location.reload();
+                    }else{
+                        this.setState({
+                            resultFail: true
+                        })
+                    }
+                })
+            }
         }else{
-            //Edit Budget
-            axios.put("http://localhost:5000/budget/"+this.props.idBudget, 
-                {budget: this.state.budget}
-            ).then( res => {              
-                console.log(res);
-                if(res.data){
-                    window.location.reload();
-                }else{
-                    this.setState({
-                        resultFail: true
-                    })
-                }
-            })
-        }
+            this.validator.showMessages();
+            this.forceUpdate();
+        }        
         
     }
 
@@ -85,11 +96,13 @@ class FormBudget extends Component {
             <form method="post" onSubmit={this.saveBudget}>
             <div className="mb-3">
                 <label for="concept" className="form-label">Concepto</label>
-                <input type="text" className="form-control" id="concept" defaultValue={this.state.budget.concept} ref={this.conceptRef} onChange={this.changeState}/>
+                <input type="text" className="form-control" id="concept" maxLength="100" defaultValue={this.state.budget.concept} ref={this.conceptRef} onChange={this.changeState}/>
+                {this.validator.message('concept', this.state.budget.concept, 'required')}
             </div>
             <div className="mb-3">
                 <label for="amount" className="form-label">Monto</label>
-                <input type="text" className="form-control" id="amount" defaultValue={this.state.budget.amount} ref={this.amountRef}  onChange={this.changeState}/>
+                <input type="number" className="form-control" id="amount" defaultValue={this.state.budget.amount} ref={this.amountRef}  onChange={this.changeState}/>
+                {this.validator.message('amount', this.state.budget.amount, 'required')}
             </div>
             <div className="mb-3">
                 <label for="type" className="form-label">Tipo</label>
