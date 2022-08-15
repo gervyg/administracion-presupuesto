@@ -176,4 +176,17 @@ const findUserBalance = async (idUser) => {
     }
 };
 
-module.exports = { findCategories, findBudgets, addBudget, editBudget, deleteBudget, findBudgetsByFilter, login, findUserBalance }
+const addUser = async (name, email, password) => {
+
+    const insertUser = `INSERT INTO users (name, email, password)
+                    VALUES ('${name}', '${email}' , '${password}' );`;
+    try {
+        await pool.query(insertUser);       
+        return true;
+    } catch (err) {
+        console.log('Error addUser: ', err);
+        return false;
+    }
+};
+
+module.exports = { findCategories, findBudgets, addBudget, editBudget, deleteBudget, findBudgetsByFilter, login, findUserBalance, addUser }

@@ -29,14 +29,21 @@ class Header extends Component {
     componentDidMount(){
         this.loginValidate();
         setInterval(() => { 
-            const token = JSON.parse(localStorage.getItem('token'));
-            const base64Url = token.split(".")[1];
-            const base64 = base64Url.replace("-", "+").replace("_", "/");
-            const tk = JSON.parse(window.atob(base64));
-            if (Date.now() >= (tk.exp) * 1000) {
-                alert("Sesión Expirada");
-                this.close();
-            }            
+            if(localStorage.getItem('token') !== ""){
+                const token = JSON.parse(localStorage.getItem('token'));
+                const base64Url = token.split(".")[1];
+                const base64 = base64Url.replace("-", "+").replace("_", "/");
+                const tk = JSON.parse(window.atob(base64));
+                if (Date.now() >= (tk.exp) * 1000) {
+                    alert("Sesión Expirada");
+                    this.close();
+                } 
+            }else{
+                if(window.location.pathname !== "/" && window.location.pathname !== "/register"){
+                    alert("Sesión Expirada");
+                    this.close();
+                }                
+            }           
           }, 5000);
     }    
 

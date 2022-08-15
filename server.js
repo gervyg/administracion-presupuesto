@@ -85,6 +85,12 @@ app.get('/userBalance', checkLogin, async (req, res) => {
     const result = await db.findUserBalance(idUser)
     res.json(result);   
 });
+
+app.post('/register', async (req, res) => {  
+    const { name, email, password } = req.body;  
+    const result = await db.addUser(name, email, password); 
+    res.json(result);    
+})
 /***/
 
 app.get('*', (req, res) => {
