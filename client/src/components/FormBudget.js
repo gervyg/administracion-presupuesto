@@ -108,7 +108,7 @@ class FormBudget extends Component {
             </div>
             <div className="mb-3">
                 <label for="amount" className="form-label">Monto</label>
-                <input type="number" className="form-control" id="amount" defaultValue={this.state.budget.amount} ref={this.amountRef}  onChange={this.changeState}/>
+                <input type="number" className="form-control" id="amount" maxLength="10" defaultValue={this.state.budget.amount} ref={this.amountRef}  onChange={this.changeState}/>
                 {this.validator.message('amount', this.state.budget.amount, 'required')}
             </div>
             <div className="mb-3">
