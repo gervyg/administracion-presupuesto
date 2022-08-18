@@ -10,11 +10,14 @@ class Login extends Component {
         password: "",
         resultFail: false
     }
+    //To validate Form (with custom messages)
     validator = new SimpleReactValidator({ messages: { required: "Este campo es requerido", email: "Debe escribir en formato email"}});
     
+    //Fields for login
     emailRef = React.createRef();
     passwordRef = React.createRef();
 
+    //Change value of form fields 
     changeState = () => {
         this.setState({
             email: this.emailRef.current.value,
@@ -22,13 +25,15 @@ class Login extends Component {
         })
     }
 
+    //login by email and password
     login = (e) => {
         e.preventDefault();
         this.changeState();
         this.setState({ resultFail: false })
 
+        //To validate form (if all correct)
         if(this.validator.allValid()){
-            axios.get("http://localhost:5000/login",  {
+            axios.get("/login",  {
                 params: {
                 email: this.state.email,
                 password: this.state.password
@@ -36,14 +41,16 @@ class Login extends Component {
             })
             .then( res => {
                 if(res.data.login){
+                    //if correct login -> set variables in localStorage
                     localStorage.setItem('token', JSON.stringify( res.data.token ));
                     localStorage.setItem('validateLogin', true)
-                    window.location.href = "/balance";
+                    window.location.href = "/balance"; //to enter the balance view
                 }else{
                     this.setState({ resultFail: true })
                 }
             })
         }else{
+            //To show message the form validator (if a field is not correct)
             this.validator.showMessages();
             this.forceUpdate();
         }
@@ -55,7 +62,7 @@ class Login extends Component {
         <React.Fragment>         
         <div className="container">  
           <div className='row justify-content-center'>
-            <div className='col-4 mt-5'>
+            <div className='col-sm-4 col-xs-12 mt-5'>
                 <form method="post" onSubmit={this.login}>
                     <div className="mb-3">
                         <label for="email" className="form-label">Email</label>
@@ -75,8 +82,7 @@ class Login extends Component {
                             </div>
                         </div>
                         : null
-                    }
-                    
+                    }                    
                     <div className="mb-3">
                         <button type="submit" className="btn btn-primary">Ingresar</button>
                     </div>

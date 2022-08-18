@@ -9,12 +9,15 @@ class Register extends Component {
         password: "",
         resultMsg: null,
     }
+    //To validate Form (with custom messages)
     validator = new SimpleReactValidator({ messages: { required: "Este campo es requerido", email: "Debe escribir en formato email"}});
     
+    //To validate Form (with custom messages)
     nameRef = React.createRef();
     emailRef = React.createRef();
     passwordRef = React.createRef();
 
+    //Change value of form fields 
     changeState = () => {
         this.setState({
             name: this.nameRef.current.value,
@@ -23,13 +26,15 @@ class Register extends Component {
         })
     }
 
+    //Function to register users
     register = (e) => {
         e.preventDefault();
         this.changeState();
         this.setState({ resultMsg: null })
 
+        //To validate form (if all correct)
         if(this.validator.allValid()){
-            axios.post("http://localhost:5000/register",  {                
+            axios.post("/register",  {                
                 name: this.state.name,
                 email: this.state.email,
                 password: this.state.password               
@@ -44,6 +49,7 @@ class Register extends Component {
                 }
             })
         }else{
+            //To show message the form validator (if a field is not correct)
             this.validator.showMessages();
             this.forceUpdate();
         }
@@ -55,7 +61,7 @@ class Register extends Component {
             <React.Fragment>         
         <div className="container">  
           <div className='row justify-content-center'>
-            <div className='col-4 mt-5'>
+            <div className='col-sm-4 col-xs-12 mt-5'>
                 <form method="post" onSubmit={this.register}>
                     <div className="mb-3">
                         <label for="name" className="form-label">Nombre completo</label>

@@ -12,7 +12,7 @@ class Router extends Component {
         return(                        
             <BrowserRouter>
                  <Header/>
-                 {/*Configuracion de rutas */}
+                 {/*Router configuration */}
                  <Routes>
                     <Route path='/' element={<Login/>} />
                     <Route path='/register' element={<Register/>} />

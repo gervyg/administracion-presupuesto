@@ -44,6 +44,7 @@ const findBudgets = async (limit, idUser) => {
     }
 };
 
+//Search all budgets by filters (category and type)
 const findBudgetsByFilter = async (type, category, idUser) => {
 
     const typeParams = (type != "")? " AND type='"+type+"'": "";
@@ -61,6 +62,7 @@ const findBudgetsByFilter = async (type, category, idUser) => {
     }
 };
 
+//Create budgets
 const addBudget = async (budget) => {
 
     const amount = (budget.type === '0')? -(budget.amount): budget.amount;
@@ -95,6 +97,7 @@ const addBudget = async (budget) => {
     }
 };
 
+//Edit budgets (by id).
 const editBudget = async (id, budget) => {
 
     const amount = (budget.type === '0')? -(budget.amount): budget.amount;
@@ -120,6 +123,7 @@ const editBudget = async (id, budget) => {
     }
 };
 
+//Delete budget
 const deleteBudget = async (id, idUser) => {
     
     const deleteQuery = `DELETE FROM budget WHERE id='${id}';`;
@@ -140,6 +144,7 @@ const deleteBudget = async (id, idUser) => {
     }
 };
 
+//Query to balance update
 const queryBalanceString = (idUser) => {
    return `UPDATE user_balance SET balance=(
                 SELECT COALESCE(SUM(amount),0) FROM budget WHERE id_user='${idUser}'
@@ -164,6 +169,7 @@ const login = async (email, password) => {
     }
 };
 
+//Search user balance 
 const findUserBalance = async (idUser) => {
 
     const query = `(SELECT * FROM user_balance WHERE id_user='${idUser}');`;
@@ -176,6 +182,7 @@ const findUserBalance = async (idUser) => {
     }
 };
 
+//Add users 
 const addUser = async (name, email, password) => {
 
     const insertUser = `INSERT INTO users (name, email, password)

@@ -15,7 +15,7 @@ class Budget extends Component {
         type: "",
         category: ""
     }
-
+    //Validate login (token)
     loginValidate = () =>{
 
         if(localStorage.getItem('validateLogin') && localStorage.getItem('token') !== ""){
@@ -37,11 +37,13 @@ class Budget extends Component {
         this.loginValidate();
     }
 
+    //Validate close - open -> modal
     handleClose = () => { this.setState({ showModal: false }) }
     handleCloseDelete = () => { this.setState({ showModalDelete: false }) }
-
+    
+    //Search all budgets (by user) - limit false= to show all
     getBudgets = () => {
-        axios.get("http://localhost:5000/budgets",  {
+        axios.get("/budgets",  {
             params: {
               limit: false,
               idUser: this.state.idUser,
@@ -55,9 +57,11 @@ class Budget extends Component {
         })
     }
 
+    //Fields for filters and search form
     typeFilterRef = React.createRef();
     categoryFilterRef = React.createRef();
 
+    //Change value of filter fields 
     changeFilterState = () => {
         this.setState({
             type: this.typeFilterRef.current.value,
@@ -65,8 +69,9 @@ class Budget extends Component {
         })
     }
 
+    //Search budgets for filters 
     getBudgetsFilters = () => {
-        axios.get("http://localhost:5000/budgetsFilter",  {
+        axios.get("/budgetsFilter",  {
             params: {
               type: this.state.type,
               category: this.state.category,
@@ -80,19 +85,19 @@ class Budget extends Component {
             })
         })
     }
-
+    //Search all categories
     getCategories = () => {
-        axios.get("http://localhost:5000/categories")
+        axios.get("/categories")
         .then( res => {
             this.setState({
                 categories: res.data
             })
         })
     } 
-
+    //Delete budget by id (selected from modal)
     deleteBudget = (e) => {
         e.preventDefault();
-        axios.delete("http://localhost:5000/budget/"+this.state.idBudget, 
+        axios.delete("/budget/"+this.state.idBudget, 
                 {params: {
                     idUser: this.state.idUser,
                     token: JSON.parse(localStorage.getItem('token'))
@@ -117,7 +122,7 @@ class Budget extends Component {
                         <button type="button" onClick={() => this.setState({showModal: true, idBudget:0, budgetEdit:{}})} className="btn btn-success">Crear</button>
                     </div>
                     <div className='row float-end'>                    
-                        <form className="row gy-2 gx-3 mx-5">
+                        <form className="row gy-2 mx-2">
                         <div className="col-auto">
                             <div className="mb-3 row">
                                 <label for="selectTipo" className="col-auto col-form-label">Tipo: </label>
@@ -154,7 +159,7 @@ class Budget extends Component {
                     </div>
                     <section>
                         <div className='clearfix'></div>
-                        <div className='row mt-5 mx-3'>
+                        <div className='row mt-5 mx-3 table-responsive'>
                             <table className="table table-striped table-hover">
                                 <thead>
                                     <tr>
@@ -205,6 +210,7 @@ class Budget extends Component {
                             </table>
                         </div>   
                     </section>  
+                    {/*Modal - Create or Edit budgets */}
                     <Modal show={this.state.showModal} onHide={this.handleClose}>
                         <Modal.Header closeButton>
                             <Modal.Title>{((this.state.idBudget === 0)? 'Crear': 'Editar')+ ' Presupuesto'}</Modal.Title>
@@ -213,6 +219,7 @@ class Budget extends Component {
                             <FormBudget categories={this.state.categories} idBudget={this.state.idBudget} budgetEdit={this.state.budgetEdit} idUser={this.state.idUser}/>
                         </Modal.Body>
                     </Modal>
+                    {/*Modal - Delete budgets */}
                     <Modal show={this.state.showModalDelete} onHide={this.handleCloseDelete}>
                         <Modal.Header closeButton>
                             <Modal.Title>Eliminar Presupuesto</Modal.Title>

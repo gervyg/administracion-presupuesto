@@ -8,7 +8,7 @@ class Home extends Component {
         validateLogin: false,
         balance: { balance: 0,  revenue: 0, expenditure: 0 }
     }
-
+    //Validate login (token)
     loginValidate = () =>{
 
         if(localStorage.getItem('validateLogin') && localStorage.getItem('token') !== ""){ 
@@ -28,8 +28,9 @@ class Home extends Component {
         this.loginValidate();  
     }
 
+    //Search user balance to show current balance 
     getUserBalance = () => {
-        axios.get("http://localhost:5000/userBalance",  {
+        axios.get("/userBalance",  {
             params: {
               idUser: this.state.idUser,
               token: JSON.parse(localStorage.getItem('token'))
@@ -49,9 +50,10 @@ class Home extends Component {
         })
     }
 
+    //Search all budgets (by user) - limit true= to show 10 records
     getBudgets = () => {
         
-        axios.get("http://localhost:5000/budgets",  {
+        axios.get("/budgets",  {
             params: {
               limit: true,
               idUser: this.state.idUser,
@@ -76,7 +78,7 @@ class Home extends Component {
                     </div>
                 </div>
                 <div className="clearfix"></div>
-                <div className="row mt-3 mx-3">
+                <div className="row mt-3 mx-3 table-responsive">
                     <p className="text-start mb-0">Últimos 10 registros</p>
                     <table className="table table-striped table-hover">
                         <thead>

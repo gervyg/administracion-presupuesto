@@ -1,14 +1,17 @@
 import React, {Component} from 'react';
 import {NavLink} from 'react-router-dom';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
 
 class Header extends Component {
-   
+   /* Component to show header (all views) */
     state = {
         validateLogin: false,
         userName: ""
      }
- 
+    //Validate login (token)
      loginValidate = () =>{
          if(localStorage.getItem('validateLogin') && localStorage.getItem('token') !== ""){
             
@@ -47,6 +50,7 @@ class Header extends Component {
           }, 5000);
     }    
 
+    //close session (set variables localStorage)
     close = () => {
         localStorage.setItem('token', "");
         localStorage.setItem('validateLogin', false);
@@ -55,48 +59,38 @@ class Header extends Component {
   
     render(){
         return(
-            <React.Fragment>
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-                <div className="container-fluid">
-                <NavLink className="navbar-brand" to="/balance">Administración Presupuesto Personal</NavLink>
-                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false">
-                    <span className="navbar-toggler-icon"></span>
-                </button>
-                <div className="collapse navbar-collapse" id="navbarNav">
-                {!this.state.validateLogin && 
-                    <ul className="navbar-nav ms-auto">
-                        <li className="nav-item">
+            <Navbar bg="dark" variant="dark" expand="lg">
+            <Container>
+                <Navbar.Brand href="#">Administración Presupuesto Personal</Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="ms-auto">
+                    {!this.state.validateLogin && 
+                        <React.Fragment>
                             <NavLink className="nav-link active" to="/">Login</NavLink>
-                        </li>
-                        <li className="nav-item">
                             <NavLink className="nav-link" to="/register">Register</NavLink>
-                        </li>  
-                    </ul>
-                }
-                {this.state.validateLogin &&
-                    <ul className="navbar-nav ms-auto">
-                        <li className="nav-item">
+                        </React.Fragment>
+                    }
+                    {this.state.validateLogin &&
+                        <React.Fragment>
                             <NavLink className="nav-link active" to="/balance">Balance</NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink className="nav-link" to="/budget">Presupuesto</NavLink>
-                        </li> 
-                        <Dropdown>
-                            <Dropdown.Toggle variant="dark">
-                                Hola, {this.state.userName}
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu>
-                                <Dropdown.Item href="#" onClick={this.close}>
-                                    <span>Salir</span>
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </ul>
-                }
-                </div>
-            </div>
-          </nav>
-          </React.Fragment>
+                            <NavLink className="nav-link" to="/budget">Presupuesto</NavLink>                            
+                            <Dropdown>
+                                <Dropdown.Toggle variant="dark">
+                                    Hola, {this.state.userName}
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu>
+                                    <Dropdown.Item href="#" onClick={this.close}>
+                                        <span>Salir</span>
+                                    </Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </React.Fragment>                        
+                    }
+                </Nav>
+                </Navbar.Collapse>
+            </Container>
+            </Navbar>    
         );
     }
 }

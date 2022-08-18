@@ -10,14 +10,16 @@ class FormBudget extends Component {
         budget: {},
         resultFail: false
     }
-
+    //To validate Form (with custom messages)
     validator = new SimpleReactValidator({ messages: { required: "Este campo es requerido"}});
 
+    //Fields for create or edit form
     conceptRef = React.createRef();
     amountRef = React.createRef();
     typeRef = React.createRef();
     categoryRef = React.createRef();
 
+    //Change value of form fields 
     changeState = () => {
         this.setState({
             budget: {
@@ -29,22 +31,24 @@ class FormBudget extends Component {
             }
         })
     }
-
+    //To save budgets (if id=0 -> new budget, else -> edit budget)
     saveBudget = (e) => {
         e.preventDefault();
         this.changeState();
         this.setState({ resultFail: false }); 
         
+        //To validate form (if all correct)
         if(this.validator.allValid()){
             if(this.props.idBudget === 0){ 
                 //Add Budget
-                axios.post("http://localhost:5000/budget", 
+                axios.post("/budget", 
                 {   budget: this.state.budget },
                 {   params: { token: JSON.parse(localStorage.getItem('token')) }
                 }).then( res => {              
                     if(res.data){
                         window.location.reload();
                     }else{
+                        //Show error message
                         this.setState({
                             resultFail: true
                         })
@@ -52,7 +56,7 @@ class FormBudget extends Component {
                 })
             }else{ 
                 //Edit Budget
-                axios.put("http://localhost:5000/budget/"+this.props.idBudget, 
+                axios.put("/budget/"+this.props.idBudget, 
                         {   budget: this.state.budget },
                         {   params: { token: JSON.parse(localStorage.getItem('token')) }
                     }
@@ -60,6 +64,7 @@ class FormBudget extends Component {
                     if(res.data){
                         window.location.reload();
                     }else{
+                        //Show error message
                         this.setState({
                             resultFail: true
                         })
@@ -67,12 +72,14 @@ class FormBudget extends Component {
                 })
             }
         }else{
+            //To show message the form validator (if a field is not correct)
             this.validator.showMessages();
             this.forceUpdate();
         }        
         
     }
 
+    //To obtain data for a budget to be edited
     getDataBudget = () => {
         if(this.props.idBudget !== 0 && this.props.idBudget != null){
             this.setState({
