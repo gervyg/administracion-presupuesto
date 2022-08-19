@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use(express.static(path.resolve(__dirname,'./client/build')));
+app.use(express.static(path.join(__dirname,'client/build')));
 
 /* APIs */
 app.get('/login', async (req, res) => {
@@ -93,8 +93,8 @@ app.post('/register', async (req, res) => {
 })
 /***/
 
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname,'./client/build'), 'index.html');
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname,'client/build', 'index.html'));
 });
 
 app.listen(5000, () => console.log("Escuchando el puerto 5000"));
